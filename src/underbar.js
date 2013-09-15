@@ -16,16 +16,55 @@ var _ = { };
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
   _.first = function(array, n) {
+    var nArray = [];
+    if(n == undefined){
+      return array[0];
+    } else if(n == 0){
+      return [];
+    } else {
+      for(var i = 0; i < n; i++){
+        if(array[i] == undefined){
+          break;
+        }else{
+          nArray.push(array[i]);
+        }
+      }
+      return (nArray.length == 1)?nArray[0]:nArray;
+    }
   };
 
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    var nArray = [];
+    if(n == undefined){
+      return array[array.length - 1];
+    } else if(n == 0){
+      return [];
+    } else {
+      for(var i = 0; i < n; i++){
+        if(array[i] == undefined){
+          break;
+        }else{
+          nArray.unshift(array[array.length - 1 - i]);
+        }
+      }
+      return (nArray.length == 1)?nArray[array.length - 1]:nArray;
+    }
   };
 
   // Call iterator(value, key, collection) for each element of collection.
   // Accepts both arrays and objects.
   _.each = function(collection, iterator) {
+    if (Array.isArray(collection)){
+      for(var i = 0;i < collection.length;i++){
+        iterator(collection[i], i, collection);
+      }
+    } else {
+      for(var key in collection){
+        iterator(collection[key], key, collection);
+      }
+    }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -34,20 +73,55 @@ var _ = { };
     // TIP: Here's an example of a function that needs to iterate, which we've
     // implemented for you. Instead of using a standard `for` loop, though,
     // it uses the iteration helper `each`, which you will need to write.
+    if (Array.isArray(array)){
+      for(var i = 0; i < array.length; i++){
+        if(array[i] == target){
+          return i;
+        }
+      }
+    }else {
+      for(var i in array){
+        if(array[i] == target){
+          return i;
+        }
+      }
+    }
+    return -1;
   };
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, iterator) {
+    for(var i = 0; i < collection.length; i++){
+      if(!iterator(collection[i])){
+        collection.splice(i, 1);
+      }
+    }
+    return collection;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, iterator) {
     // TIP: see if you can re-use _.select() here, without simply
     // copying code in and modifying it
+    for(var i = 0; i < collection.length; i++){
+      if(iterator(collection[i])){
+        collection.splice(i, 1);
+      }
+    }
+    return collection;
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+    var nArray = [];
+
+    for(var i = 0; i < array.length; i++){
+      if(_.indexOf(nArray, array[i]) == -1){
+        nArray.push(array[i]);
+      }
+    }
+
+    return nArray;
   };
 
 
@@ -56,6 +130,16 @@ var _ = { };
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    if(Array.isArray(array)){
+      for(var i = 0; i < array.length; i++){
+        array[i] = iterator(array[i]);
+      }
+    } else {
+      for(var key in array){
+        array[key] = iterator(array[key]);
+      }
+    }
+    return array;
   };
 
   /*
@@ -78,6 +162,9 @@ var _ = { };
 
   // Calls the method named by methodName on each value in the list.
   _.invoke = function(list, methodName, args) {
+    return _.map(list, function(value){
+      return (typeof methodName == "string")?value[methodName](args):methodName.apply(value, args);
+    });
   };
 
   // Reduces an array or object to a single value by repetitively calling
@@ -94,30 +181,71 @@ var _ = { };
   //   }, 0); // should be 6
   //
   _.reduce = function(collection, iterator, initialValue) {
+    var total = 0;
+    if(initialValue == undefined){
+      initialValue = 0;
+    }
+    for(var i = initialValue; i < collection.length; i++){
+      total = iterator(total, collection[i]);
+    }
+    return total;
   };
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
-    return _.reduce(collection, function(wasFound, item) {
+    var isIt = false;
+    _.each(collection, function(value){
+      if(value === target){
+        isIt = true;
+      }
+    });
+    return isIt;
+    /*return _.reduce(collection, function(wasFound, item) {
       if(wasFound) {
         return true;
       }
       return item === target;
-    }, false);
+    }, false);*/
   };
 
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    var isIt = true;
+      _.each(collection, function(value){
+        if(typeof iterator == "function"){
+          if(!iterator(value)){
+            isIt = false;
+          }
+        } else {
+          if(!value){
+            isIt = false;
+          }
+        }
+      });
+    return isIt;
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    var isIt = false;
+      _.each(collection, function(value){
+        if(typeof iterator == "function"){
+          if(iterator(value)){
+            isIt = true;
+          }
+        } else {
+          if(value){
+            isIt = true;
+          }
+        }
+      });
+    return isIt;
   };
 
 
@@ -140,11 +268,25 @@ var _ = { };
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    for(var i = 1; i < arguments.length; i++){
+      for(var key in arguments[i]){
+        obj[key] = arguments[i][key];
+      }
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for(var i = 1; i < arguments.length; i++){
+      for(var key in arguments[i]){
+        if(!(key in obj)){
+          obj[key] = arguments[i][key];
+        }
+      }
+    }
+    return obj;
   };
 
 
@@ -185,6 +327,9 @@ var _ = { };
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var memory = [];
+
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -194,6 +339,22 @@ var _ = { };
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var date = new Date();
+    var time = date.getTime();
+    var start = date.getTime();
+    var args = [];
+    for(var key in arguments){
+      args.push(arguments[key]);
+    }
+    args = args.slice(2);
+
+    window.setTimeout(function(){func.apply(this, args);}, wait);
+    /*
+    * setTimeout() is supported by every browser as far as
+    * I can tell and there's nothing saying I can't use it
+    * so, hey,  why not? It's so easy and obvious that it
+    * feels like cheating but I can't figure out another way.
+    */
   };
 
 
@@ -204,6 +365,11 @@ var _ = { };
 
   // Shuffle an array.
   _.shuffle = function(array) {
+    var nArray = array.slice(0);
+    nArray.sort(function(){
+      return Math.round(Math.random());
+    });
+    return nArray;
   };
 
 
