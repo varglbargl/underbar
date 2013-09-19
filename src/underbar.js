@@ -16,7 +16,7 @@ var _ = { };
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
   _.first = function(array, n) {
-    var nArray = [];
+    /*var nArray = [];
     if(n == undefined){
       return array[0];
     } else if(n == 0){
@@ -29,7 +29,14 @@ var _ = { };
           nArray.push(array[i]);
         }
       }
-      return (nArray.length == 1)?nArray[0]:nArray;
+      return nArray;
+    }*/
+    if(n == undefined){
+      return array[0];
+    } else if (n > array.length) {
+      return array;
+    } else {
+      return array.slice(0, n);
     }
   };
 
@@ -49,7 +56,7 @@ var _ = { };
           nArray.unshift(array[array.length - 1 - i]);
         }
       }
-      return (nArray.length == 1)?nArray[array.length - 1]:nArray;
+      return nArray;
     }
   };
 
@@ -327,9 +334,21 @@ var _ = { };
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-    var memory = [];
+    var cache = {};
 
+    function indexer(a){
+      return a;
+    }
 
+    return function(){
+      var key = indexer(arguments[0]);
+      if (_.contains(cache, key)){
+        return cache[key];
+      } else {
+        cache[key] = func.apply(this, arguments);
+        return func.apply(this, arguments);
+      }
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
