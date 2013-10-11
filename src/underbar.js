@@ -336,10 +336,7 @@ var _ = { };
     var cache = [];
 
     return function(){
-      var args = [];
-      for(var key in arguments){
-        args.push(arguments[key]);
-      }
+      var args = _.snip(arguments);
       if(_.contains(cache, args)){
         console.log("pulled");
         return cache[cache.indexOf(args)];
@@ -385,79 +382,92 @@ var _ = { };
 
   // Shuffle an array.
   _.shuffle = function(array) {
-    var nArray = array.slice(0);
-    for(var i = 0; i <= array.length*2; i++){
+    /*var nArray = array.slice(0);
+    for(var i = 0; i <= array.length*100; i++){
       nArray.sort(function(){
         return Math.round(Math.random());
       });
     }
-    return nArray;
-    //this function sucks. DO NOT USE SORT().
+    return nArray;*/
+    //this function sucks and uses sort().
+    var nArray = array.slice(0);
+    var mArray = []
+    for(var i = 0; i < array.length; i++){
+      var value = Math.floor(Math.random()*nArray.length);
+      mArray[i] = nArray[value];
+      nArray.splice(value, 1);
+    }
+    // This function trends towards even distribution of numbers the more you test it.
+    // Way to go, this function.
 
-    var nArray = [];
-
+    return mArray;
   };
 
-  //// - ! - Works in progress - ! - ////
-
+  // Tests the randomness of _.shuffle().
   _.shuffTest = function(){
-    var array = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+    var array = [0,1,2,3,4,5,6,7,8,9];
 
     var oneCount = 0;
     var twentyCount = 0;
-    for(var i = 0; i < 500; i++){
-      if(_.shuffle(array)[0] == 1){
+    // the idea is if you test it enough times a given spot should see each number fairly evenly.
+    // Not by actual number similarity, those can still stray apart, but by % difference. Theoretically,
+    // if you tested it infinite times it should be an even split accross the board so the more you test
+    // it the more it should trend in that direction. My shuffler function gets to 92-99ish% flat eventually.
+    // Which also means JS's built in randomizer is really good!
+
+    for(var i = 0; i < 10000; i++){
+      var array = _.shuffle(array);
+      if(array[0] == 0){
         oneCount++;
-      } else if(_.shuffle(array)[0] == 20) {
+      } else if(array[0] == 9) {
         twentyCount++;
       }
     }
-    console.log(oneCount + ", " + twentyCount);
+    // Calculates if shuffle trends towards "total randomness" with a 5% margin of error.
+    // The only reason it should is if you run it a bunch and compare all of them.
+    // Which I basically do.
+    console.log((oneCount<twentyCount?oneCount/twentyCount > 0.95:twentyCount/oneCount > 0.95) + ": " + (oneCount<twentyCount?oneCount/twentyCount:twentyCount/oneCount));
   }
 
-  //To replace shuffTest with something more versatile mostly but also it's cool anyway.
+  //To work with shufftest and make it more versatile mostly, but also it's cool by itself.
   //Calls a specified function n times, memoized, returns array of results.
-  //Takes another function to run on the array of results.
-  //Uses all arguments past the third as the arguments for callback.
+  //Uses all arguments past n as the arguments for callback.
 
-  //(callback function, number of times to do it [, what to test the results for][, arguments for callback...])
+  //(callback function, number of times to do it [, arguments for callback...])
 
-  _.times = function(callback, n, tester){
-    if(typeof tester == "function"){
-      var args = _.snip(arguments, 2);
-    } else {
-      var args = _.snip(arguments, 1);
-      tester = function(){ return arguments; }
-    }
-    console.log(arguments);
-    console.log(args);
+  _.times = function (callback, n){
     var caller = _.memoize(callback);
     var results = [];
+    var args = _.snip(arguments, 1);
+    console.log(arguments);
+    console.log(args);
 
     for(var i = 0; i < n; i++){
-      var doIt = caller.apply(this, args)
+      var doIt = caller.apply(this, args);
       results.push(doIt);
     }
-    return tester.apply(this, results);
+    return results;
   }
 
   // Slice doesn't work on objects. It should and return an array of remaining values!
-  // If just given an object it returns an array because I like arrays better for most things.
+  // If just given an object it returns an array of all values because I like arrays better for most things.
 
-_.snip = function(obj, start, stop){
-  start = start?start:0;
-  stop = stop?stop:Object.keys(obj).length;
-  var results = [];
-  var current = 0;
-  for(key in obj){
-    if(current >= start && current <= stop){
-      results.push(obj[key]);
+  _.snip = function (obj, starts, stops){
+    starts = starts?starts:0;
+    stops = stops?stops:Object.keys(obj).length;
+    var results = [];
+    var current = 0;
+    for(key in obj){
+      if(current >= starts && current <= stops){
+        results.push(obj[key]);
+      }
+      current++;
     }
-    current++;
+
+    return results;
   }
 
-  return results;
-}
+  //I just like doing this.  On to actual assignments.
 
   /**
    * Note: This is the end of the pre-course curriculum. Feel free to continue,
