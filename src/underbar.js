@@ -127,7 +127,6 @@ var _ = { };
         nArray.push(array[i]);
       }
     }
-
     return nArray;
   };
 
@@ -334,19 +333,20 @@ var _ = { };
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-    var cache = {};
-
-    function indexer(a){
-      return a;
-    }
+    var cache = [];
 
     return function(){
-      var key = indexer(arguments[0]);
-      if (_.contains(cache, key)){
-        return cache[key];
+      var args = [];
+      for(var key in arguments){
+        args.push(arguments[key]);
+      }
+      if(_.contains(cache, args)){
+        console.log("pulled");
+        return cache[cache.indexOf(args)];
       } else {
-        cache[key] = func.apply(this, arguments);
-        return func.apply(this, arguments);
+        cache.push(args);
+        console.log("cached: " + cache);
+        return func.apply(this, args);
       }
     }
   };
@@ -372,7 +372,8 @@ var _ = { };
     * setTimeout() is supported by every browser as far as
     * I can tell and there's nothing saying I can't use it
     * so, hey,  why not? It's so easy and obvious that it
-    * feels like cheating but I can't figure out another way.
+    * feels like cheating but I can't figure out another way
+    * that isn't basically the same.
     */
   };
 
@@ -385,12 +386,78 @@ var _ = { };
   // Shuffle an array.
   _.shuffle = function(array) {
     var nArray = array.slice(0);
-    nArray.sort(function(){
-      return Math.round(Math.random());
-    });
+    for(var i = 0; i <= array.length*2; i++){
+      nArray.sort(function(){
+        return Math.round(Math.random());
+      });
+    }
     return nArray;
+    //this function sucks. DO NOT USE SORT().
+
+    var nArray = [];
+
   };
 
+  //// - ! - Works in progress - ! - ////
+
+  _.shuffTest = function(){
+    var array = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+
+    var oneCount = 0;
+    var twentyCount = 0;
+    for(var i = 0; i < 500; i++){
+      if(_.shuffle(array)[0] == 1){
+        oneCount++;
+      } else if(_.shuffle(array)[0] == 20) {
+        twentyCount++;
+      }
+    }
+    console.log(oneCount + ", " + twentyCount);
+  }
+
+  //To replace shuffTest with something more versatile mostly but also it's cool anyway.
+  //Calls a specified function n times, memoized, returns array of results.
+  //Takes another function to run on the array of results.
+  //Uses all arguments past the third as the arguments for callback.
+
+  //(callback function, number of times to do it [, what to test the results for][, arguments for callback...])
+
+  _.times = function(callback, n, tester){
+    if(typeof tester == "function"){
+      var args = _.snip(arguments, 2);
+    } else {
+      var args = _.snip(arguments, 1);
+      tester = function(){ return arguments; }
+    }
+    console.log(arguments);
+    console.log(args);
+    var caller = _.memoize(callback);
+    var results = [];
+
+    for(var i = 0; i < n; i++){
+      var doIt = caller.apply(this, args)
+      results.push(doIt);
+    }
+    return tester.apply(this, results);
+  }
+
+  // Slice doesn't work on objects. It should and return an array of remaining values!
+  // If just given an object it returns an array because I like arrays better for most things.
+
+_.snip = function(obj, start, stop){
+  start = start?start:0;
+  stop = stop?stop:Object.keys(obj).length;
+  var results = [];
+  var current = 0;
+  for(key in obj){
+    if(current >= start && current <= stop){
+      results.push(obj[key]);
+    }
+    current++;
+  }
+
+  return results;
+}
 
   /**
    * Note: This is the end of the pre-course curriculum. Feel free to continue,
