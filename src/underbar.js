@@ -338,11 +338,9 @@ var _ = { };
     return function(){
       var args = JSON.stringify(arguments);
       if(_.contains(cache, args)){
-        console.log("pulled");
         return cache[cache.indexOf(args)];
       } else {
         cache.push(args);
-        console.log("cached: " + cache);
         return func.apply(this, arguments);
       }
     }
@@ -405,7 +403,7 @@ var _ = { };
     return mArray;
   };
 
-  // Tests the randomness of _.shuffle().
+  // Tests the randomness of _.shuffle(). Can only be called from console and takes no arguments.
   _.shuffTest = function(){
     var array = [0,1,2,3,4,5,6,7,8,9];
 
@@ -423,7 +421,7 @@ var _ = { };
       }
     }
     // Calculates if shuffle trends towards even distribution with a 5% margin of error.
-    console.log((oneCount<twentyCount?oneCount/twentyCount > 0.95:twentyCount/oneCount > 0.95) + ": " + (oneCount<twentyCount?oneCount/twentyCount:twentyCount/oneCount));
+    return((oneCount<twentyCount?oneCount/twentyCount > 0.95:twentyCount/oneCount > 0.95) + ": " + (oneCount<twentyCount?oneCount/twentyCount:twentyCount/oneCount));
   }
 
   //To work with shufftest and make it more versatile mostly, but also it's cool by itself.
@@ -440,15 +438,14 @@ var _ = { };
     console.log(args);
 
     for(var i = 0; i < n; i++){
-      var doIt = caller.apply(this, args);
-      console.log(doIt);
-      results.push(doIt);
+      results.push(caller.apply(this, args));
     }
     return results;
   }
 
-  // Slice doesn't work on objects. It should and return an array of remaining values.
-  // If just given an object it returns an array of all values because I like arrays better for most things.
+  // Slice doesn't work on objects. It should and return an array of remaining values because I say so.
+  // If just given an object it returns an array of all values because I like working with arrays
+  // better for most purposes and... I don't actually know if there's a built in method for this already.
 
   _.snip = function (obj, starts, stops){
     starts = starts?starts:0;
@@ -456,15 +453,13 @@ var _ = { };
     var results = [];
     var current = 0;
     for(key in obj){
-      if(current >= starts && current <= stops){
+      if(current >= starts && current < stops){
         results.push(obj[key]);
       }
       current++;
     }
     return results;
   }
-
-  //I just like doing this.  On to actual assignments.
 
   /**
    * Note: This is the end of the pre-course curriculum. Feel free to continue,
@@ -477,6 +472,7 @@ var _ = { };
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    //console.log(typeof iterator + ": " + iterator);
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -485,6 +481,24 @@ var _ = { };
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var zippedArray = [];
+
+    // I am so sure there must be a better way to do this...
+    var longestArray = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      if(arguments[i].length > longestArray){
+        longestArray = arguments[i].length;
+      }
+    }
+
+    for(var i = 0; i < longestArray; i++){
+      zippedArray.push([]);
+      for(var j = 0; j < arguments.length; j++){
+        zippedArray[i].push(undefined);
+        zippedArray[i] = arguments[j][i];
+      }
+    }
+    return zippedArray;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -497,6 +511,7 @@ var _ = { };
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    console.log();
   };
 
   // Take the difference between one array and a number of other arrays.
