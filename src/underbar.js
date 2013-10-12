@@ -336,14 +336,14 @@ var _ = { };
     var cache = [];
 
     return function(){
-      var args = _.snip(arguments);
+      var args = JSON.stringify(arguments);
       if(_.contains(cache, args)){
         console.log("pulled");
         return cache[cache.indexOf(args)];
       } else {
         cache.push(args);
         console.log("cached: " + cache);
-        return func.apply(this, args);
+        return func.apply(this, parseJSON(args));
       }
     }
   };
@@ -389,7 +389,9 @@ var _ = { };
       });
     }
     return nArray;*/
-    //this function sucks and uses sort().
+    // ^-- This function tends to keep the high numbers and low numbers on the side they started on.
+    // It sucks and uses sort().
+
     var nArray = array.slice(0);
     var mArray = []
     for(var i = 0; i < array.length; i++){
@@ -397,7 +399,7 @@ var _ = { };
       mArray[i] = nArray[value];
       nArray.splice(value, 1);
     }
-    // This function trends towards even distribution of numbers the more you test it.
+    // ^-- This function trends towards even distribution of numbers the more you test it.
     // Way to go, this function.
 
     return mArray;
@@ -409,11 +411,8 @@ var _ = { };
 
     var oneCount = 0;
     var twentyCount = 0;
-    // the idea is if you test it enough times a given spot should see each number fairly evenly.
-    // Not by actual number similarity, those can still stray apart, but by % difference. Theoretically,
-    // if you tested it infinite times it should be an even split accross the board so the more you test
-    // it the more it should trend in that direction. My shuffler function gets to 92-99ish% flat eventually.
-    // Which also means JS's built in randomizer is really good!
+    // The idea is if you test it enough times a given spot should see each number fairly evenly.
+    // This shuffles array and tests for two arbitrary values in it to see how true that is.
 
     for(var i = 0; i < 10000; i++){
       var array = _.shuffle(array);
@@ -423,9 +422,7 @@ var _ = { };
         twentyCount++;
       }
     }
-    // Calculates if shuffle trends towards "total randomness" with a 5% margin of error.
-    // The only reason it should is if you run it a bunch and compare all of them.
-    // Which I basically do.
+    // Calculates if shuffle trends towards even distribution with a 5% margin of error.
     console.log((oneCount<twentyCount?oneCount/twentyCount > 0.95:twentyCount/oneCount > 0.95) + ": " + (oneCount<twentyCount?oneCount/twentyCount:twentyCount/oneCount));
   }
 
@@ -438,18 +435,19 @@ var _ = { };
   _.times = function (callback, n){
     var caller = _.memoize(callback);
     var results = [];
-    var args = _.snip(arguments, 1);
+    var args = _.snip(arguments, 2);
     console.log(arguments);
     console.log(args);
 
     for(var i = 0; i < n; i++){
       var doIt = caller.apply(this, args);
+      console.log(doIt);
       results.push(doIt);
     }
     return results;
   }
 
-  // Slice doesn't work on objects. It should and return an array of remaining values!
+  // Slice doesn't work on objects. It should and return an array of remaining values.
   // If just given an object it returns an array of all values because I like arrays better for most things.
 
   _.snip = function (obj, starts, stops){
@@ -463,7 +461,6 @@ var _ = { };
       }
       current++;
     }
-
     return results;
   }
 
