@@ -343,7 +343,7 @@ var _ = { };
       } else {
         cache.push(args);
         console.log("cached: " + cache);
-        return func.apply(this, parseJSON(args));
+        return func.apply(this, arguments);
       }
     }
   };
