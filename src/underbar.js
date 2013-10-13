@@ -421,7 +421,7 @@ var _ = { };
       }
     }
     // Calculates if shuffle trends towards even distribution with a 5% margin of error.
-    return((oneCount<twentyCount?oneCount/twentyCount > 0.95:twentyCount/oneCount > 0.95) + ": " + (oneCount<twentyCount?oneCount/twentyCount:twentyCount/oneCount));
+    console.log((oneCount<twentyCount?oneCount/twentyCount > 0.95:twentyCount/oneCount > 0.95) + ": " + (oneCount<twentyCount?oneCount/twentyCount:twentyCount/oneCount));
   }
 
   //To work with shufftest and make it more versatile mostly, but also it's cool by itself.
@@ -492,10 +492,13 @@ var _ = { };
     }
 
     for(var i = 0; i < longestArray; i++){
-      zippedArray.push([]);
       for(var j = 0; j < arguments.length; j++){
-        zippedArray[i].push(undefined);
-        zippedArray[i] = arguments[j][i];
+        if(zippedArray[i]){
+          zippedArray[i].push(arguments[j][i]);
+        } else {
+          zippedArray.push([]);
+          zippedArray[i].push(arguments[j][i]);
+        }
       }
     }
     return zippedArray;
