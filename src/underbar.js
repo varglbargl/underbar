@@ -353,9 +353,6 @@ var _ = { };
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
-    var date = new Date();
-    var time = date.getTime();
-    var start = date.getTime();
     var args = [];
     for(var key in arguments){
       args.push(arguments[key]);
@@ -509,12 +506,25 @@ var _ = { };
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    // I can't figure out what result is supposed to be.
+    var newNested = [];
+
+    for (var i = 0; i < nestedArray.length; i++) {
+      if(Array.isArray(nestedArray[i])){
+        newNested.push(_.flatten(nestedArray[i]));
+      } else {
+        newNested.push(nestedArray[i]);
+      }
+    }
+
+    return newNested;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
-    console.log();
+    console.log(arguments);
+
   };
 
   // Take the difference between one array and a number of other arrays.
@@ -533,6 +543,23 @@ var _ = { };
   //
   // See the Underbar readme for details.
   _.throttle = function(func, wait) {
+    var canRun = true;
+
+    return function(){
+      if(canRun){
+        window.setTimeout(startItBackUp, wait);
+        canRun = false;
+        return func.apply(this, arguments);
+      } else {
+        console.log("error: You may only run that function once every " + wait/1000 + " seconds.");
+      }
+    }
+
+    function startItBackUp(){
+      canRun = true;
+    }
   };
+
+  //OH YEAH!
 
 }).call(this);
