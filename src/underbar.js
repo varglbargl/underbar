@@ -468,12 +468,17 @@ var _ = { };
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
-    console.log(iterator);
-    if(iterator == "length"){
-      collection.sort(function(a, b){ return a.length > b.length })
-    } else {
 
+    if(iterator == "length"){
+      collection.sort(function(a, b){ return a.length > b.length; });
+    } else if(typeof iterator == "string") {
+      collection.sort(function(a, b){ return a.iterator < b.iterator; });
+    } else {
+      collection.sort(iterator);
+      collection.sort();
     }
+
+
     return collection;
   };
 
