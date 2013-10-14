@@ -188,9 +188,8 @@ var _ = { };
   //
   _.reduce = function(collection, iterator, initialValue) {
     var total = 0;
-    if(initialValue == undefined){
-      initialValue = 0;
-    }
+    initialValue?true:initialValue = 0;
+
     for(var i = initialValue; i < collection.length; i++){
       total = iterator(total, collection[i]);
     }
@@ -469,7 +468,13 @@ var _ = { };
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
-    //console.log(typeof iterator + ": " + iterator);
+    console.log(iterator);
+    if(iterator == "length"){
+      collection.sort(function(a, b){ return a.length > b.length })
+    } else {
+
+    }
+    return collection;
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -507,6 +512,7 @@ var _ = { };
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
     // I can't figure out what result is supposed to be.
+    //console.log(!!result);
     var newNested = [];
 
     for (var i = 0; i < nestedArray.length; i++) {
@@ -523,13 +529,26 @@ var _ = { };
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
-    console.log(arguments);
+    //console.log(arguments);
 
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+
+    for (var i = 0; i < array.length; i++) {
+    //through the elements of array
+      for (var j = 1; j < arguments.length; j++) {
+      //through the other arrays given
+        console.log(arguments[j]);
+        if(_.contains(arguments[j], array[i])){
+          array.splice(i,1);
+          i--;
+        }
+      }
+    }
+    return array;
   };
 
 
@@ -547,19 +566,19 @@ var _ = { };
 
     return function(){
       if(canRun){
-        window.setTimeout(startItBackUp, wait);
+        window.setTimeout(breaksOverStartItBackUp, wait);
         canRun = false;
         return func.apply(this, arguments);
       } else {
-        console.log("error: You may only run that function once every " + wait/1000 + " seconds.");
+        throw new Error("You can only run that function once every " + wait/1000 + " seconds.");
       }
     }
 
-    function startItBackUp(){
+    function breaksOverStartItBackUp(){
       canRun = true;
     }
   };
 
-  //OH YEAH!
+  //AW YISS!
 
 }).call(this);
