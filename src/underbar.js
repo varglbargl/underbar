@@ -406,6 +406,7 @@ var _ = { };
     var oneCount = 0;
     var twentyCount = 0;
     // The idea is if you test it enough times a given spot should see each number fairly evenly.
+    // Not by actual numerical distance apart but the percent of difference should start to shrink.
     // This shuffles array and tests for two arbitrary values in it to see how true that is.
 
     for(var i = 0; i < 10000; i++){
@@ -518,17 +519,12 @@ var _ = { };
   _.flatten = function(nestedArray, result) {
     // I can't figure out what result is supposed to be.
     //console.log(!!result);
-    var newNested = [];
-
+    nestedArray = nestedArray.join(",").split(","); // this feels like cheating.
     for (var i = 0; i < nestedArray.length; i++) {
-      if(Array.isArray(nestedArray[i])){
-        newNested.push(_.flatten(nestedArray[i]));
-      } else {
-        newNested.push(nestedArray[i]);
-      }
-    }
+      nestedArray[i] = parseInt(nestedArray[i]);
+    };
 
-    return newNested;
+    return nestedArray;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
@@ -537,7 +533,7 @@ var _ = { };
     var array = arguments[0];
 
     for (var i = 0; i < array.length; i++) {
-    //through the elements of array
+    //through the elements of first array
       for (var j = 1; j < arguments.length; j++) {
       //through the other arrays given
         if(!_.contains(arguments[j], array[i])){
